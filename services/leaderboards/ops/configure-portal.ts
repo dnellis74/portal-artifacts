@@ -24,7 +24,7 @@ const data = {
   includeAvatarInLaunch: false,
 }
 console.log(JSON.stringify({ id: module.id, previousAuthMode: module.authMode, proposed: data }, null, 2))
-if (process.argv.includes('--apply')) {
+if (process.argv.includes('--apply') || process.env.COSMIC_LEADERBOARD_APPLY === 'true') {
   await payload.update({ collection: 'modules', id: module.id, overrideAccess: true, data })
   console.log('Cosmic Carnival signed launch configured.')
 }

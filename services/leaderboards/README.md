@@ -27,7 +27,7 @@ The schema migration is an administrative deploy step; the runtime role cannot D
 - `NODE_ENV=development`: local HTTP cookies only; never use in production.
 
 Portal module configuration is in `ops/configure-portal.ts`. It is dry-run by default
-and applies only with `--apply`, from a Portal checkout with its Payload CLI. It
+and applies only with `--apply` or `COSMIC_LEADERBOARD_APPLY=true`, from a Portal checkout with its Payload CLI. It
 changes auth fields on the existing module, leaves visibility and entry URL intact,
 and checks the expected slug, kind and entry URL before updating.
 
