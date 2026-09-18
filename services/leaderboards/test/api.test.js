@@ -87,7 +87,7 @@ test('expired runs are rejected and rate limit is enforced',async () => {
   assert.equal((await post('/runs',cookie,{version:VERSION})).status,429);
 });
 test('duration, score units, and scoring version bounds',() => {
-  for(const body of [ {score:-100,wave:1,durationMs:10000}, {score:1,wave:1,durationMs:10000}, {score:100,wave:1,durationMs:999999}, {score:100,wave:100,durationMs:1000} ]) assert.throws(()=>validateScore({...body,version:VERSION},10000));
+  for(const body of [ {score:700,wave:1,durationMs:10000}, {score:-100,wave:1,durationMs:10000}, {score:1,wave:1,durationMs:10000}, {score:100,wave:1,durationMs:999999}, {score:100,wave:100,durationMs:1000} ]) assert.throws(()=>validateScore({...body,version:VERSION},10000));
 });
 
 test('logout revokes the server session',async () => {

@@ -1,4 +1,5 @@
 import express from 'express';
+import { waveSchedule } from './cosmic-waves.js';
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import { jwtVerify } from 'jose';
 
@@ -19,6 +20,14 @@ export function validateScore(body, wallMs) {
       !Number.isInteger(durationMs) || durationMs < 1000 || durationMs > RUN_SECONDS * 1000 ||
       durationMs > wallMs + 2000 || score > wave * 6600 || score > durationMs * 2 ||
       durationMs < (wave - 1) * 1550) throw fail(400, 'This run does not match the scoring rules.');
+  let maximumScore = 0;
+  let minimumDurationMs = 0;
+  for (let n = 1; n <= wave; n++) {
+    const schedule = waveSchedule(n);
+    for (const enemy of schedule) maximumScore += { prism:100, ribbon:200, jester:300 }[enemy.kind];
+    if (n < wave) minimumDurationMs += (schedule.at(-1).at + 1.55) * 1000;
+  }
+  if (score > maximumScore || durationMs < minimumDurationMs) throw fail(400, 'This score or wave cannot be reached in this run.');
   return { score, wave, durationMs };
 }
 
@@ -111,7 +120,7 @@ export function createApp({ pool, origin, issuer, launchSecret, secure = true })
     } catch (e) { await client.query('ROLLBACK'); throw e; } finally { client.release(); }
   });
   app.post(`${BASE}/runs/:id/finish`, session, async (req,res) => {
-    if (!/^[a-f0-9-]{36}$/.test(req.params.id)) throw fail(400,'Invalid run ID.');
+    if (!/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/.test(req.params.id)) throw fail(400,'Invalid run ID.');
     const client = await pool.connect();
     try {
       await client.query('BEGIN');
