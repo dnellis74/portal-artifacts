@@ -35,6 +35,6 @@ An enemy that reaches the rim costs one life. Prisms take one hit, Ribbons chang
 
 ## Assets and storage
 
-The four supplied GLBs in `public/models/` are loaded once and used directly for the Crescent player and all three enemy roles. They contain no external textures. Archivo Black is bundled locally through `@fontsource`; all runtime dependencies are bundled and the game makes no external requests.
+The four supplied GLBs in `public/models/` are loaded once and used directly for the Crescent player and all three enemy roles. They contain no external textures. Archivo Black is bundled locally through `@fontsource`; all runtime dependencies are bundled and model and font loading makes no external requests.
 
-Only the local high score, mute preference, and low-effects preference are stored. No cookies, accounts, private APIs, or backend services are used.
+The local high score, mute preference, and low-effects preference are stored on this device. Optional Portal-ranked play uses a game-scoped HttpOnly session and the same-origin `/leaderboard-api/cosmic-carnival/` API. Guest play remains available without the service; sandboxed embeds remain guests. See `../../services/leaderboards/README.md` for deployment and validation limits.

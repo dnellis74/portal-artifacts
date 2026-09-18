@@ -162,3 +162,7 @@ Editable source and local Node-server support remain in `studies/jev-maze/`.
 Rebuild the artifact with `cd studies/jev-maze && npm run build:artifact`.
 The existing Caddy/Railway deployment serves the built artifact after merge to
 main. The local `.env` is Git-ignored and outside the Docker build's copied assets.
+
+## Optional game leaderboards
+
+`services/leaderboards/` deploys independently beside the shared game Postgres. Cosmic Carnival remains playable without it; Portal signed launch enables ranked submissions. See [setup, API, tests, and rollback](services/leaderboards/README.md). Set `LEADERBOARD_UPSTREAM` on this static service to proxy its narrowly scoped API.

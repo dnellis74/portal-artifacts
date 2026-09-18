@@ -1,5 +1,6 @@
 import "@fontsource/archivo-black/400.css";
 import "./styles.css";
+import { Leaderboard } from "./leaderboard";
 import { Synth } from "./audio/synth";
 import { GameSimulation, type GameEvent } from "./game/simulation";
 import { Controls } from "./input/controls";
@@ -29,6 +30,8 @@ const finalWave = document.querySelector<HTMLElement>("#final-wave")!;
 const help = document.querySelector<HTMLDialogElement>("#help")!;
 const effectsButton = document.querySelector<HTMLButtonElement>("#effects")!;
 
+const leaderboard = new Leaderboard();
+let starting = false;
 const game = new GameSimulation();
 const view = new GameRenderer(canvas);
 const synth = new Synth();
@@ -53,6 +56,7 @@ const controls = new Controls(canvas, {
     for (const event of game.fire()) handleEvent(event);
   },
   start: () => {
+    if (document.querySelector("dialog[open]")) return;
     if (state === "title" || state === "game-over") void startGame();
     else if (state === "paused") resumeGame();
   },
@@ -119,7 +123,15 @@ async function loadAssets(): Promise<void> {
 }
 
 async function startGame(): Promise<void> {
-  await synth.unlock().catch(() => undefined);
+  if (starting || document.querySelector("dialog[open]")) return;
+  starting = true;
+  const startButtons = document.querySelectorAll<HTMLButtonElement>("#start, #restart");
+  startButtons.forEach(button => { button.disabled = true; });
+  await Promise.all([synth.unlock().catch(() => undefined), leaderboard.start()]);
+  starting = false;
+  startButtons.forEach(button => { button.disabled = false; });
+  accumulator = 0;
+  lastTime = performance.now();
   game.reset();
   view.reset();
   updateHud();
@@ -187,6 +199,7 @@ function endGame(): void {
   finalWave.textContent = String(game.wave);
   synth.play("game-over");
   setState("game-over");
+  leaderboard.finish(game.score, game.wave);
 }
 
 function updateHud(): void {

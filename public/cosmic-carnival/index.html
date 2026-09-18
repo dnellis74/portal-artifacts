@@ -7,8 +7,8 @@
     <meta name="description" content="Cosmic Carnival — a pastel alien lane shooter." />
     <link rel="icon" href="/cosmic-carnival/favicon.svg" type="image/svg+xml" />
     <title>Cosmic Carnival</title>
-    <script type="module" crossorigin src="/cosmic-carnival/assets/index-BJu73KwT.js"></script>
-    <link rel="stylesheet" crossorigin href="/cosmic-carnival/assets/index-jPopwwb1.css">
+    <script type="module" crossorigin src="/cosmic-carnival/assets/index-Bz4WkHOo.js"></script>
+    <link rel="stylesheet" crossorigin href="/cosmic-carnival/assets/index-DtWNTYev.css">
   </head>
   <body>
     <main id="app" aria-label="Cosmic Carnival arcade game">
@@ -34,8 +34,10 @@
         <div class="title-actions">
           <button id="title-mute" class="quiet" type="button" aria-pressed="false">SOUND ON</button>
           <button id="effects" class="quiet" type="button" aria-pressed="false">FULL FX</button>
+          <button data-leaderboard-open class="quiet" type="button">LEADERBOARD</button>
           <button id="help-open" class="quiet" type="button">HOW TO PLAY</button>
         </div>
+        <p id="ranked-status" class="ranked-status" aria-live="polite">Guest play · Local best saved on this device</p>
       </section>
 
       <section id="hud" class="hud hidden" aria-label="Game status">
@@ -64,8 +66,20 @@
           <p>WAVE <strong id="final-wave">1</strong></p>
         </div>
         <button id="restart" class="primary" type="button">PLAY AGAIN</button>
-        <p class="hint">ENTER / CLICK TO RESTART</p>
+        <p id="ranked-result" class="ranked-status" aria-live="polite"></p>
+        <button id="ranked-retry" class="quiet hidden" type="button">RETRY SCORE SAVE</button>
+        <button data-leaderboard-open class="quiet" type="button">LEADERBOARD</button>
       </section>
+
+      <dialog id="leaderboard" aria-labelledby="leaderboard-title">
+        <button id="leaderboard-close" class="dialog-close" type="button" aria-label="Close leaderboard">×</button>
+        <p class="eyebrow">PORTAL ARCADE</p>
+        <h2 id="leaderboard-title">TOP OF THE SPIRAL</h2>
+        <p id="leaderboard-message" aria-live="polite"></p>
+        <ol id="leaderboard-list"></ol>
+        <p>Launch Cosmic Carnival from Portal to submit ranked runs. Guest play always stays available.</p>
+        <a data-portal-launch target="_blank" rel="noopener noreferrer">OPEN IN PORTAL ↗</a>
+      </dialog>
 
       <dialog id="help">
         <button id="help-close" class="dialog-close" type="button" aria-label="Close help">×</button>
