@@ -36,7 +36,7 @@ and checks the expected slug, kind and entry URL before updating.
 1. With administrator database credentials, run `npm run migrate`; grant the runtime
    role schema usage, table SELECT/INSERT/UPDATE/DELETE, sequence USAGE/SELECT.
 2. Deploy `services/leaderboards/` as the Railway service root using its Dockerfile
-   and railway.json. Set the configuration above. `/health` checks schema reachability.
+   and set its Railway service health check to `/health` (60-second timeout). Set the configuration above. `/health` checks schema reachability.
 3. Set `LEADERBOARD_UPSTREAM=https://<api-service-domain>` on the static artifacts
    service and deploy the repository root with its existing Dockerfile.
 4. Set the dedicated launch secret in Portal and redeploy it to load the value.
@@ -44,7 +44,7 @@ and checks the expected slug, kind and entry URL before updating.
 
 For CLI deployments use `railway up services/leaderboards --path-as-root` with
 explicit project and service selectors. For GitHub autodeploy, set the service root
-and config file to this subdirectory after the implementation branch is merged.
+to `/services/leaderboards`. Configure deployment settings directly in Railway; new `railway.json` configuration is deprecated by Railway. After review, switch the service branch from `codex/cosmic-leaderboards` to `main`.
 Do not deploy the static root Dockerfile to the API service.
 
 ## API
@@ -75,7 +75,7 @@ artifact scripts. Use a dedicated game origin if that stronger isolation becomes
 ## Validation limits
 
 This is a casual, client-reported leaderboard. Checks reject negative/fractional
-scores, wrong versions, impossible coarse score/wave/duration combinations, expired
+scores, wrong versions, scores above the generated wave schedule maximum, impossible wave/duration combinations, expired
 runs, other sessions' runs, and duplicate changes. They do not prevent fabricated
 plausible scores or bots. Replay validation is a later improvement. Scoring changes
 must increment VERSION in backend and client to start a separate leaderboard.
@@ -104,3 +104,5 @@ API failure, and mobile layout.
 Set the module back to `authMode: none` to return to guest-only launch. Revert the
 static deployment or unset LEADERBOARD_UPSTREAM; guest gameplay continues. Keep the
 schema and scores intact. No existing game tables are changed by this service.
+
+Wave rules are generated from the game source by `npm run build` in `studies/cosmic-carnival`. Commit the generated `src/cosmic-waves.js` alongside changes to the scoring version.
