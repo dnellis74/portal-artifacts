@@ -76,7 +76,7 @@ class Handler(SimpleHTTPRequestHandler):
         self.reply({'error':'Unknown endpoint'},404)
 
 def finish(job):
-    dest=OUTPUT/'raidguild-signal-music-video-v12.mp4'
+    dest=OUTPUT/'raidguild-signal-music-video-v14.mp4'
     cmd=['ffmpeg','-v','error','-y']
     if job['format']=='h264':cmd+=['-r',str(job['fps']),'-f','h264']
     cmd+=['-i',job['path'],'-i',str(ROOT/'audio/score.wav')]
