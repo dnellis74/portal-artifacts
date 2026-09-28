@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#08090d">
+  <meta name="description" content="Venture beyond. Together. The RaidGuild launch film.">
+  <title>Venture beyond. Together. — RaidGuild</title>
+  <link rel="stylesheet" href="./player.css">
+  <script src="./player.js" defer></script>
+</head>
+<body>
+  <div class="page-shell">
+    <header class="masthead" aria-label="RaidGuild launch film">
+      <a class="wordmark" href="/" aria-label="Portal Artifacts home">RAID<span>GUILD</span><span class="cursor" aria-hidden="true">_</span></a>
+      <span class="edition">A BUILDER-OWNED COLLECTIVE <span aria-hidden="true">/</span> LAUNCH FILM</span>
+    </header>
+
+    <main>
+      <div class="eyebrow"><span class="pulse" aria-hidden="true"></span> A NEW ERA IN MOTION <span class="running-time">01:25 FILM</span></div>
+      <h1>Venture beyond.<br><em>Together.</em></h1>
+      <p class="intro">A signal becomes a commons. See the people, experiments, and shared work behind RaidGuild’s next chapter.</p>
+
+      <section class="screen" aria-label="Launch film player">
+        <div class="screen-corners" aria-hidden="true"></div>
+        <video id="film" controls playsinline preload="metadata" poster="./poster.webp" aria-label="RaidGuild launch film">
+          <track id="lyrics-track" kind="captions" src="./captions.vtt" srclang="en" label="Lyrics">
+        </video>
+        <div class="screen-overlay" id="screen-overlay">
+          <button class="start" id="start" type="button" aria-label="Play the RaidGuild launch film">
+            <span class="play-symbol" aria-hidden="true">▶</span><span>WATCH THE FILM</span>
+          </button>
+          <span class="screen-length">01:25 <span aria-hidden="true">/</span> SOUND ON</span>
+        </div>
+      </section>
+
+      <div class="player-tools">
+        <p class="player-status" id="player-status" role="status" aria-live="polite">Loading the film…</p>
+        <div class="tool-actions">
+          <button class="text-button" id="captions-toggle" type="button" aria-pressed="false" disabled>Lyrics <span aria-hidden="true">CC</span></button>
+          <a class="text-button download" id="download" href="./media/film.mp4" download="raidguild-launch-film.mp4">Download film <span aria-hidden="true">↗</span></a>
+        </div>
+      </div>
+      <p class="error" id="player-error" role="alert" hidden></p>
+
+      <nav class="chapters" aria-label="Film chapters">
+        <div class="chapters-heading"><h2>Follow the signal</h2><span>CHAPTER SELECT / 08</span></div>
+        <ol id="chapter-list"></ol>
+      </nav>
+    </main>
+
+    <footer><span>BUILT TOGETHER. OWNED TOGETHER.</span><a href="https://raidguild.org/">raidguild.org <span aria-hidden="true">↗</span></a></footer>
+  </div>
+</body>
+</html>

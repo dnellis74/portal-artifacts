@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="80" viewBox="0 0 400 80">
+<title>Louchi palette</title>
+<rect x="1" y="1" width="90" height="78" fill="#080909" stroke="#efe9d7" stroke-opacity="0.25" stroke-width="1"/>
+<rect x="101" y="1" width="90" height="78" fill="#102d2c" stroke="#efe9d7" stroke-opacity="0.25" stroke-width="1"/>
+<rect x="201" y="1" width="90" height="78" fill="#191e4e" stroke="#efe9d7" stroke-opacity="0.25" stroke-width="1"/>
+<rect x="301" y="1" width="90" height="78" fill="#ee3c78" stroke="#efe9d7" stroke-opacity="0.25" stroke-width="1"/>
+</svg>
