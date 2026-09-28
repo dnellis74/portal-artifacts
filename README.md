@@ -98,6 +98,8 @@ required.
 
 ## Published artifacts
 
+- `raidguild-launch-film/` — Prepared, 85-second RaidGuild website launch film player with native video controls, chapter navigation, and optional lyric captions. Its stable same-origin media path is `./media/film.mp4`; production routing through the existing S3-backed render-outputs proxy still needs deployment verification. The MP4 is intentionally not checked into this repository.
+
 - `brewers-rendezvous/` — A personal, playable recap of the 2026 Colorado Brewers Rendezvous, with a miniature park, animal characters, tasting journal and riverside synth music.
 
 - `raidguild-radio/` — Ambient desert-walker cockpit with a looping six-song playlist, crossfades, weather, and day/night controls. Opens at night; click Start listening to enable audio. All media is served locally.

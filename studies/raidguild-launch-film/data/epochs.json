@@ -1,0 +1,43 @@
+{
+  "note": "User-supplied approximate creative timeline markers, not verified election dates. 2019 is collective origin, not a dated Ven reign.",
+  "markers": [
+    {
+      "label": "Building together",
+      "year": 2019
+    },
+    {
+      "label": "Ven",
+      "year": null
+    },
+    {
+      "label": "TW",
+      "year": 2023,
+      "approximate": true
+    },
+    {
+      "label": "Suede",
+      "year": 2024,
+      "approximate": true
+    },
+    {
+      "label": "Louchi",
+      "year": 2026,
+      "approximate": true,
+      "current": true
+    }
+  ],
+  "currentStewards": [
+    {
+      "name": "Dekan",
+      "role": "Knowledge"
+    },
+    {
+      "name": "ECWireless",
+      "role": "Infrastructure"
+    },
+    {
+      "name": "Louchi",
+      "role": "Brand"
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "stats": [
+    {
+      "value": "150",
+      "label": "Global members"
+    },
+    {
+      "value": "88+",
+      "label": "Raids shipped"
+    },
+    {
+      "value": "2019",
+      "label": "Building together since"
+    },
+    {
+      "value": "\u221e",
+      "label": "Questions to explore"
+    }
+  ],
+  "statsSource": "https://raidguild-website-redesign-production.up.railway.app/",
+  "verified": "2026-09-27, live browser second marquee and local HomeExperience.tsx",
+  "history": [
+    {
+      "year": "2019",
+      "title": "The Guild begins",
+      "detail": "Founded at ETHDenver to support the DAOhaus ecosystem"
+    },
+    {
+      "year": "2020",
+      "title": "Public goods",
+      "detail": "WrapETH and SmartInvoice"
+    },
+    {
+      "year": "2021",
+      "title": "The first cohort",
+      "detail": "Structured onboarding and member education"
+    },
+    {
+      "year": "2026",
+      "title": "Venture beyond",
+      "detail": "Current Louchi expression and website launch in progress"
+    }
+  ],
+  "historySources": [
+    "raid-guild/website: src/lib/data/content.ts",
+    "RaidGuild brand project: brand/AGENTS.md"
+  ],
+  "brandGovernance": "An elected brand steward can introduce a new visual reign. Brand work is collectively authored. Do not assign unverified reign dates or imply sole authorship.",
+  "stewards": [
+    {
+      "name": "Dekan",
+      "role": "Knowledge",
+      "image": "member-dekan.png"
+    },
+    {
+      "name": "ECWireless",
+      "role": "Infrastructure",
+      "image": "member-ecwireless.png"
+    },
+    {
+      "name": "Louchi",
+      "role": "Brand",
+      "image": "member-louchi.png"
+    }
+  ],
+  "aiClaim": "Becoming AI-first. Prism, Jev and Agentic OS are tools and experiments; no claim of a fully deployed autonomous organization.",
+  "practiceLabels": [
+    "Applied AI",
+    "Onchain Systems"
+  ],
+  "portalRole": "Community publishing and shared knowledge / CMS",
+  "launchUrl": "raidguild.org",
+  "launchUrlNote": "Proposed destination; preview is on Railway"
+}

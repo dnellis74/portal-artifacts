@@ -21,6 +21,28 @@
 	}
 
 	route {
+		# One published film only. Existing media service authenticates to Railway S3.
+		@launch_film {
+			method GET HEAD
+			path /raidguild-launch-film/media/film.mp4
+		}
+		handle @launch_film {
+			rewrite * /render-outputs/remotion/raidguild-launch-film/v12/film-7b214f8b30cdbbf0.mp4
+			reverse_proxy https://remotion-service-production.up.railway.app {
+				header_up Host remotion-service-production.up.railway.app
+				header_up -Authorization
+				header_up -Cookie
+				header_down -Set-Cookie
+				transport http {
+					dial_timeout 5s
+					response_header_timeout 30s
+				}
+			}
+		}
+		handle /raidguild-launch-film/media/* {
+			respond "Film media route not found" 404
+		}
+
 		# Visitor-owned TypeSafe keys only. Fixed upstream and endpoint; no env key.
 		@jev_inference {
 			method POST

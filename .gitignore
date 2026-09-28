@@ -1,2 +1,16 @@
 .DS_Store
 
+# RaidGuild launch film: keep generated media, review renders, and locally
+# licensed font binaries out of source control; retain manifests and notes.
+/public/raidguild-launch-film/media/*.mp4
+/studies/raidguild-launch-film/audio/*
+!/studies/raidguild-launch-film/audio/*.md
+!/studies/raidguild-launch-film/audio/*.json
+/studies/raidguild-launch-film/assets/video/*
+!/studies/raidguild-launch-film/assets/video/*.md
+!/studies/raidguild-launch-film/assets/video/*.json
+/studies/raidguild-launch-film/render/
+/studies/raidguild-launch-film/exports/
+/studies/raidguild-launch-film/__pycache__/
+/studies/raidguild-launch-film/**/__pycache__/
+/studies/raidguild-launch-film/**/Grinder*.woff2

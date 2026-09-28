@@ -1,0 +1,165 @@
+{
+  "note": "Archive examples Ven/TW/Suede and latest Louchi. Approximate user-supplied era markers are recorded separately in epochs.json; they are not verified election dates.",
+  "reigns": [
+    {
+      "id": "louchi",
+      "steward": "Louchi",
+      "summary": "A Moebius-influenced system of deep teal, cyan, parchment, coral, and acid lime, built around expansive editorial type and speculative-world imagery.",
+      "direction": "Moebius-influenced speculative worlds, uppercase Grinder with native Retalic accents, Ubuntu body copy, spatial composition, and cinematic motion.",
+      "palette": [
+        {
+          "name": "Ink",
+          "value": "#102d2c",
+          "role": "Canonical dark ink"
+        },
+        {
+          "name": "Navy",
+          "value": "#191e4e",
+          "role": "Night canvas and day headings"
+        },
+        {
+          "name": "Deep Teal",
+          "value": "#0a292b",
+          "role": "Immersive surface"
+        },
+        {
+          "name": "Cyan",
+          "value": "#b8e0df",
+          "role": "Open field"
+        },
+        {
+          "name": "Parchment",
+          "value": "#efe9d7",
+          "role": "Primary canvas"
+        },
+        {
+          "name": "Coral",
+          "value": "#ee3c78",
+          "role": "Signal and action"
+        },
+        {
+          "name": "Acid Lime",
+          "value": "#d7e34d",
+          "role": "Highlight and status"
+        }
+      ],
+      "contributionNote": "Stewarded by Louchi and made real through the work, critique, and adoption of many Guild contributors.",
+      "typography": {
+        "display": "Grinder",
+        "body": "Ubuntu",
+        "mono": "Ubuntu Mono"
+      }
+    },
+    {
+      "id": "tw",
+      "steward": "TW",
+      "summary": "A high-energy Webflow era using rust red, parchment, oversized custom type, tickers, and playful motion.",
+      "direction": "Oversized Alchemion and Fratelli typography, tickers, playful motion, rust red, and parchment.",
+      "palette": [
+        {
+          "name": "Primary",
+          "value": "#a8452c",
+          "role": "Primary field"
+        },
+        {
+          "name": "Black",
+          "value": "#29100a",
+          "role": "Type and mark"
+        },
+        {
+          "name": "Secondary",
+          "value": "#f9f7e7",
+          "role": "Canvas and contrast"
+        }
+      ],
+      "contributionNote": "Stewarded by TW as a collective production involving many contributors across identity, illustration, motion, copy, and implementation.",
+      "typography": {
+        "display": "RG Alchemion",
+        "body": "RG Fratelli"
+      }
+    },
+    {
+      "id": "ven",
+      "steward": "Ven",
+      "summary": "A high-contrast early design-system era built from black fields, electric pink, white, graphite, violet, and signal yellow.",
+      "direction": "High-contrast design-system language using black fields, electric pink line work, ornate display typography, monospaced technical annotation, fantasy role icons, and violet-to-pink framing.",
+      "palette": [
+        {
+          "name": "Black",
+          "value": "#000000",
+          "role": "Primary field"
+        },
+        {
+          "name": "Raid Pink",
+          "value": "#ff3864",
+          "role": "Primary signal"
+        },
+        {
+          "name": "White",
+          "value": "#ffffff",
+          "role": "High-contrast type and canvas"
+        },
+        {
+          "name": "Graphite",
+          "value": "#2b2c34",
+          "role": "Secondary surface"
+        },
+        {
+          "name": "Violet",
+          "value": "#b66ad6",
+          "role": "Secondary accent"
+        },
+        {
+          "name": "Signal Yellow",
+          "value": "#fcfb75",
+          "role": "Secondary highlight"
+        }
+      ],
+      "contributionNote": "The surviving one-sheet explicitly credits multiple contributors across brand stewardship, design systems, icons, and implementation.",
+      "typography": {
+        "display": "Mazius Display",
+        "body": "EB Garamond",
+        "mono": "Ubuntu Mono"
+      }
+    },
+    {
+      "id": "suede",
+      "steward": "Suede",
+      "summary": "The warm Moloch and Scroll system: calligraphic editorial typography, D&D role language, and a red, parchment, and earthen-gold palette.",
+      "direction": "Warm Moloch and Scroll palettes, Mazius and EB Garamond typography, D&D role language, and technology-forward line art.",
+      "palette": [
+        {
+          "name": "Moloch 800",
+          "value": "#29100a",
+          "role": "Primary dark"
+        },
+        {
+          "name": "Moloch 500",
+          "value": "#bd482d",
+          "role": "Primary action"
+        },
+        {
+          "name": "Scroll 100",
+          "value": "#f9f7e7",
+          "role": "Primary canvas"
+        },
+        {
+          "name": "Scroll 700",
+          "value": "#534a13",
+          "role": "Warm accent"
+        },
+        {
+          "name": "Neutral Black",
+          "value": "#0d0d0d",
+          "role": "Canonical mark"
+        }
+      ],
+      "contributionNote": "Stewarded by Suede with design, development, content, and system contributions from across the Guild.",
+      "typography": {
+        "display": "Mazius Display",
+        "body": "EB Garamond",
+        "mono": "Ubuntu Mono"
+      }
+    }
+  ]
+}

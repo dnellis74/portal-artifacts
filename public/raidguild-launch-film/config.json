@@ -1,0 +1,16 @@
+{
+  "title": "Venture beyond. Together.",
+  "duration": 85,
+  "media": "./media/film.mp4",
+  "poster": "./poster.webp",
+  "chapters": [
+    { "time": 0, "title": "The signal", "detail": "A builder-owned collective" },
+    { "time": 14.5, "title": "Brand eras", "detail": "Four expressions, one guild" },
+    { "time": 22.6, "title": "Today’s stewards", "detail": "Knowledge, infrastructure, brand" },
+    { "time": 34.44, "title": "The horizon", "detail": "Nobody owns it" },
+    { "time": 61.1, "title": "Experiments", "detail": "Worlds made in the open" },
+    { "time": 65.6, "title": "Becoming AI-first", "detail": "Learn, remember, build" },
+    { "time": 67.6, "title": "Portal and website", "detail": "A window into the guild" },
+    { "time": 81, "title": "Louchi design era", "detail": "Coming Oct 26" }
+  ]
+}
