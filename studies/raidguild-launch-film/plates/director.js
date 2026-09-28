@@ -1,8 +1,8 @@
 import {P,G,N,TEAL,CREAM} from '../engine/lines.js';
-import {gear,contours,node} from './mechanics.js?v=13';
+import {gear,contours,node} from './mechanics.js?v=14';
 import {noisyPortal} from './portal.js';
 import {crack} from './crack.js';
-import {ease,boundaries,shot,beat,SONG_OFFSET} from '../timeline.js?v=13';
+import {ease,boundaries,shot,beat,SONG_OFFSET} from '../timeline.js?v=14';
 import {SVGLoader} from '../assets/vendor/SVGLoader.js';
 const pink='#ee3c78',cream='#efe9d7';
 export async function createDirector(media,epochs){const svg=await new SVGLoader().loadAsync('./assets/images/swords.svg');let symbol=[];for(let p of svg.paths)for(let path of p.subPaths){let pts=path.getPoints(40);for(let i=1;i<pts.length;i++)symbol.push([[pts[i-1].x,pts[i-1].y],[pts[i].x,pts[i].y]])}

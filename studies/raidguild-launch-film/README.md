@@ -1,6 +1,6 @@
 # RaidGuild launch film — Venture beyond. Together.
 
-Editable Three.js source for the 85-second v13 film. The published player is at `/raidguild-launch-film/`; it plays an optimized H.264/AAC export so viewers do not need WebGL or the production assets.
+Editable Three.js source for the 85-second v14 film. The published player is at `/raidguild-launch-film/`; it plays an optimized H.264/AAC export so viewers do not need WebGL or the production assets.
 
 ## Restore the production assets
 
@@ -22,7 +22,7 @@ python3 server.py --port 8777
 
 Open `http://127.0.0.1:8777/`. Click Play to hear audio; use the slider or shot menu to review scenes. `?t=32.9` opens at a particular film second. The local server binds only to loopback and is a production tool, not a public service.
 
-**Export review video** renders deterministic frames with WebCodecs and muxes the soundtrack through FFmpeg into `exports/raidguild-signal-music-video-v13.mp4`. **Capture review frames** writes PNGs to `render/`. Both directories are ignored by Git. With Pillow installed, `python3 qa/contact_sheet.py` assembles captures and compares repeat frames.
+**Export review video** renders deterministic frames with WebCodecs and muxes the soundtrack through FFmpeg into `exports/raidguild-signal-music-video-v14.mp4`. **Capture review frames** writes PNGs to `render/`. Both directories are ignored by Git. With Pillow installed, `python3 qa/contact_sheet.py` assembles captures and compares repeat frames.
 
 ## Timing and provenance
 
@@ -30,6 +30,8 @@ The film is 1920×1080 at 30fps, 2,550 frames. Song time is film time minus thre
 
 The timeline moves beyond Louchi into **THE FUTURE / BUILD IT TOGETHER**, then dissolves before the horizon flyover. Brand-era years are approximate user-supplied labels, not verified election dates. 2019 marks the guild origin; Ven is undated. Featured stewards are Dekan (knowledge), ECWireless (infrastructure) and Louchi (brand).
 
-In v13, the timeline sits over a soft translucent gradient so background line art remains visible. A localized pink-white glow, expanding ring and deterministic sparks accent the gears engaging at film 10.82 seconds. The scrim dissolves with the future timeline. Shot boundaries and soundtrack timing are unchanged.
+The timeline sits over a soft translucent gradient so background line art remains visible. In v14, the gears engaging at film 10.82 seconds launch a full-frame pink shockwave. Its glowing front refracts the gears, typography and timeline as it crosses the image, with a brief pink exposure hit and camera punch-in at ignition. The scrim dissolves with the future timeline. Shot boundaries and soundtrack timing are unchanged.
+
+The delivered v14 master contains a fresh render through 84 seconds plus the unchanged final second from the verified v13 export, joined at its 84-second keyframe without re-encoding. The browser encoder stalled on the last segment. The assembled file contains all 2,550 frames and passes full decoding; the source still supports a complete fresh export.
 
 See `THIRD_PARTY_NOTICES.md` for artwork, font and engine credits, and `HOSTING.md` for the player’s media delivery setup. The line shader adaptation retains mexicat/pdoom-video’s MIT license. The reference film’s song and scenes are not included.

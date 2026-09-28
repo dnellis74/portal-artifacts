@@ -10,7 +10,7 @@ The public page is `/raidguild-launch-film/`. Its browser requests the stable sa
 - Environment: `b61b88e7-e8a1-40b6-b52f-bc8187032956`
 - Bucket resource: `40338b4f-02e0-41d2-a8e9-690bb5ab2543`
 - S3 bucket: `paperclip-bucket-ehrsbxvb`, endpoint `https://t3.storageapi.dev`, region `iad`
-- Prefix: `remotion/raidguild-launch-film/v13/`
+- Prefix: `remotion/raidguild-launch-film/v14/`
 
 The export is 1920×1080 H.264, 30fps, AAC stereo, with MP4 metadata moved to the front for playback. It is approximately 45 MB. AAC packet padding makes the container duration 85.013 seconds; visual duration is 85 seconds. The original 149 MB master remains separate.
 

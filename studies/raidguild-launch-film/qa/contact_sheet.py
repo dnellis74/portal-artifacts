@@ -13,7 +13,7 @@ for i,f in enumerate(files):
  sheet.paste(im,(x,y));d.text((x+12,y+h+7),f'{f.stem} | film {times[i]:.2f}s | song {times[i]-3:.2f}s',fill='#efe9d7')
 out=root/'render/contact-sheet.jpg';sheet.save(out,quality=92)
 print(out)
-for a,b in [('repeat-a','repeat-b'),('video-a','video-b'),('oasis-a','oasis-b'),('game-a','game-b'),('crack-a','crack-b'),('flyover-a','flyover-b'),('portal-a','portal-b'),('website-a','website-b'),('invite-a','invite-b'),('reprise-a','reprise-b'),('era-reveal-a','era-reveal-b'),('footer-a','footer-b'),('future-a','future-b'),('catch-a','catch-b')]:
+for a,b in [('repeat-a','repeat-b'),('video-a','video-b'),('oasis-a','oasis-b'),('game-a','game-b'),('crack-a','crack-b'),('flyover-a','flyover-b'),('portal-a','portal-b'),('website-a','website-b'),('invite-a','invite-b'),('reprise-a','reprise-b'),('era-reveal-a','era-reveal-b'),('footer-a','footer-b'),('future-a','future-b'),('catch-a','catch-b'),('shock-a','shock-b')]:
  fa=root/'render'/f'{a}.png';fb=root/'render'/f'{b}.png'
  if fa.exists() and fb.exists():
   ia=Image.open(fa).tobytes();ib=Image.open(fb).tobytes();print(a,b,'identical' if ia==ib else 'DIFFERENT')

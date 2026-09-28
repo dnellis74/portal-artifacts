@@ -60,7 +60,7 @@ exportButton?.addEventListener('click',async()=>{
     for(let i=0;i<120;i++){
       await wait(1000);const job=await (await fetch(`/api/status?id=${id}`)).json();
       if(job.status==='error')throw new Error(job.error);
-      if(job.status==='complete'){say('Export complete · raidguild-signal-music-video-v13.mp4');return;}
+      if(job.status==='complete'){say('Export complete · raidguild-signal-music-video-v14.mp4');return;}
     }
     throw new Error('Encoding is taking longer than expected. Check the local server.');
   }catch(e){say(`Export failed: ${e.message}`);console.error(e);}
@@ -72,9 +72,9 @@ qa.addEventListener('click',async()=>{
   if(busy)return;busy=true;const previewSize=[film.canvas.width,film.canvas.height];const unlock=lockControls();film.pause();film.exporting=true;
   try{
     film.setSize(1920,1080);
-    const times=[0.8,1.6,2.2,2.6,5.6,10.1,10.78,10.82,10.90,11.05,11.35,11.4,11.65,14.2,15.1,16.5,17.9,19.3,20.5,21.6,22.1,24.4,27.2,30,32.3,32.7,33.2,33.29,33.31,33.65,34.0,34.3,34.43,34.44,34.7,35.5,36.2,37.4,39.2,40.9,43.1,46.8,47.9,49.7,51.15,51.55,51.95,52.4,53.4,55.3,55.4,56.8,57.0,58.0,58.7,59.0,60.7,61.9,63.4,64.9,66.5,67.4,67.75,68.2,68.9,69.65,69.95,70.4,71.1,71.85,72.8,74.8,76.8,77.7,79.3,80.8,81.15,81.8,82.5,84.5];
+    const times=[0.8,1.6,2.2,2.6,5.6,10.1,10.7,10.78,10.82,10.90,10.92,11.05,11.10,11.35,11.4,11.60,11.65,11.85,12.0,14.2,15.1,16.5,17.9,19.3,20.5,21.6,22.1,24.4,27.2,30,32.3,32.7,33.2,33.29,33.31,33.65,34.0,34.3,34.43,34.44,34.7,35.5,36.2,37.4,39.2,40.9,43.1,46.8,47.9,49.7,51.15,51.55,51.95,52.4,53.4,55.3,55.4,56.8,57.0,58.0,58.7,59.0,60.7,61.9,63.4,64.9,66.5,67.4,67.75,68.2,68.9,69.65,69.95,70.4,71.1,71.85,72.8,74.8,76.8,77.7,79.3,80.8,81.15,81.8,82.5,84.5];
     const samples=times.map((t,i)=>[`review-${String(i+1).padStart(2,'0')}`,t]);
-    samples.push(['first',0],['last',film.duration-1/film.fps],['repeat-a',42.8],['interleave-a',18.4],['repeat-b',42.8],['video-a',61.9],['interleave-b',29],['video-b',61.9],['oasis-a',63.4],['game-a',64.9],['interleave-c',6.1],['oasis-b',63.4],['game-b',64.9],['crack-a',21.85],['interleave-d',76.9],['crack-b',21.85],['flyover-a',36.4],['portal-a',68.7],['website-a',71.0],['interleave-e',76.9],['flyover-b',36.4],['portal-b',68.7],['website-b',71.0],['rail-transition-a',16.0],['rail-transition-b',16.22],['invite-a',51.55],['interleave-f',27.2],['invite-b',51.55],['reprise-a',57.0],['interleave-g',22.1],['reprise-b',57.0],['era-reveal-a',82.5],['interleave-h',5.6],['era-reveal-b',82.5],['footer-a',16.1],['interleave-i',68.7],['footer-b',16.1],['future-a',34.0],['interleave-j',70.4],['future-b',34.0],['catch-a',10.90],['catch-interleave',43.1],['catch-b',10.90]);
+    samples.push(['first',0],['last',film.duration-1/film.fps],['repeat-a',42.8],['interleave-a',18.4],['repeat-b',42.8],['video-a',61.9],['interleave-b',29],['video-b',61.9],['oasis-a',63.4],['game-a',64.9],['interleave-c',6.1],['oasis-b',63.4],['game-b',64.9],['crack-a',21.85],['interleave-d',76.9],['crack-b',21.85],['flyover-a',36.4],['portal-a',68.7],['website-a',71.0],['interleave-e',76.9],['flyover-b',36.4],['portal-b',68.7],['website-b',71.0],['rail-transition-a',16.0],['rail-transition-b',16.22],['invite-a',51.55],['interleave-f',27.2],['invite-b',51.55],['reprise-a',57.0],['interleave-g',22.1],['reprise-b',57.0],['era-reveal-a',82.5],['interleave-h',5.6],['era-reveal-b',82.5],['footer-a',16.1],['interleave-i',68.7],['footer-b',16.1],['future-a',34.0],['interleave-j',70.4],['future-b',34.0],['catch-a',10.90],['catch-interleave',43.1],['catch-b',10.90],['shock-a',11.10],['shock-interleave',47.9],['shock-b',11.10],['shock-tail-before',355/30],['shock-tail-after',356/30]);
     for(let i=0;i<samples.length;i++){
       await withTimeout(film.renderAt(samples[i][1]),10000,`Review frame ${i+1}`);
       const b=await new Promise(r=>film.canvas.toBlob(r,'image/png'));
