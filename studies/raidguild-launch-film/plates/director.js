@@ -1,8 +1,8 @@
 import {P,G,N,TEAL,CREAM} from '../engine/lines.js';
-import {gear,contours,node} from './mechanics.js';
+import {gear,contours,node} from './mechanics.js?v=13';
 import {noisyPortal} from './portal.js';
 import {crack} from './crack.js';
-import {ease,boundaries,shot,beat,SONG_OFFSET} from '../timeline.js?v=12';
+import {ease,boundaries,shot,beat,SONG_OFFSET} from '../timeline.js?v=13';
 import {SVGLoader} from '../assets/vendor/SVGLoader.js';
 const pink='#ee3c78',cream='#efe9d7';
 export async function createDirector(media,epochs){const svg=await new SVGLoader().loadAsync('./assets/images/swords.svg');let symbol=[];for(let p of svg.paths)for(let path of p.subPaths){let pts=path.getPoints(40);for(let i=1;i<pts.length;i++)symbol.push([[pts[i-1].x,pts[i-1].y],[pts[i].x,pts[i].y]])}
@@ -13,6 +13,28 @@ function grid(batch,t,opacity=.5){for(let i=0;i<17;i++){let x=150+i*100;batch.li
 function lyricWords(type,music,t,layout,size=180){let phrase=music.lyrics.find(p=>t>=p.start&&t<p.end+.18);if(!phrase)return;let words=phrase.words.filter(w=>w.start<=t);if(!words.length)return;let word=words.at(-1);let e=ease((t-word.start)/.13);type.put(word.word.toUpperCase().replace(/[.,]/g,''),layout[0]+(1-e)*45,layout[1],size,{color:cream,alpha:e})}
 function reign(images,batch,type,t,key,start,duration=1.375){let q=t-start,r=335,travel=ease((q-(duration-.125))/.125)*.16,zr=r*(1+travel**3*7),cx=1280,cy=455;let palette={ven:'paletteVen',tw:'paletteTw',suede:'paletteSuede',world:'paletteLouchi'}[key];images.put(media.images[key],cx-zr*.88,cy-zr,zr*1.76,zr*2,{aperture:1,opacity:ease(q/.1)});noisyPortal(batch,cx,cy,r,t,travel);let isSuede=key==='suede';type.put({ven:'VEN',tw:'TW',suede:'Suede',world:'LOUCHI'}[key],140,245,isSuede?210:205,{font:isSuede?'MaziusDisplay':key==='world'?'Retalic':'Grinder',color:key==='tw'?'#f9f7e7':key==='suede'?'#efe9d7':pink,alpha:1});images.put(media.images[palette],145,705,520,76,{mode:0,opacity:1})}
 
+function catchPulse(world,t){
+  const q=t-7.82;if(q<0||q>.8)return 0;
+  const pulse=(.25+.75*ease(q/.06))*(1-ease((q-.06)/.64));
+  const x=.14,y=-7,z=1.8;
+  world.seg([x-.6,y,z],[x+.6,y,z],32,P,.06*pulse);
+  world.seg([x-.8,y,z],[x+.8,y,z],16,P,.1*pulse);
+  world.seg([x-1.05,y,z],[x+1.05,y,z],7,P,.42*pulse);
+  world.seg([x-.33,y,z],[x+.33,y,z],2.4,CREAM,1.2*pulse);
+  world.seg([x,y-.65,z],[x,y+.65,z],2.2,CREAM,.8*pulse);
+  const spread=ease(q/.8),radius=.7+8.5*spread,ringAlpha=.65*(1-spread);
+  for(let j=0;j<48;j++){
+    let a=j/48*Math.PI*2,b=(j+1)/48*Math.PI*2;
+    let point=(ang,r)=>[x+Math.cos(ang)*r,y+Math.sin(ang)*r*.97,z+Math.sin(ang)*r*.25];
+    world.seg(point(a,radius),point(b,radius),2.1,j%4?P:TEAL,ringAlpha);
+  }
+  for(let j=0;j<12;j++){
+    let a=j*2.39996+.28,reach=(2.2+(j%4)*1.3)*spread;
+    let point=(r)=>[x+Math.cos(a)*r,y+Math.sin(a)*r*.97,z+Math.sin(a)*r*.25];
+    world.seg(point(reach),point(reach+.35+.3*(j%3)),1.7,j%3?P:TEAL,.85*(1-spread));
+  }
+  return pulse;
+}
 function rail(batch,type,headerType,t,i,filmTime,local){
   if(i<1||i>11)return;
   const future=filmTime>=32.3;
@@ -53,7 +75,7 @@ return function draw({lines:batch,world,type,footerLines,footerType,images,camer
 switch(i){
 case 0:{let x=terminal(type,'raidguild_',150,280,local,10/1.2,85);if(local<1.3)caret(batch,x+8,295,92);if(local>=1.3){let y=terminal(type,'A new era_',150,440,local-1.3,10/.9,72);caret(batch,y+8,450,79)}batch.line(150,650,650,650,G,1);break}
 case 1:{type.put('BUILDER-OWNED',140,155,155);type.put('COLLECTIVE.',140,355,205,{color:pink});type.mono('BUILDING TOGETHER SINCE 2019',150,700,37);gear(world,{cx:25,cy:-13,r:26,angle:t*.14,tilt:.4});break}
-case 2:{type.put(t<7.72?'LET':'LET IT',140,150,155);if(t>=7.82)type.put('CATCH.',140+35*(1-ease((t-7.82)/.16)),340,225,{color:pink,scale:.85+.15*ease((t-7.82)/.16)});let a=t<7.82?.12*Math.sin(t*14):.2+(t-7.82)*1.2;gear(world,{cx:18,cy:-7,r:19,angle:a,tilt:.25});gear(world,{cx:-11.77,cy:-7,r:12.67,teeth:16,angle:-a*24/16+.2,tilt:.25});break}
+case 2:{type.put(t<7.72?'LET':'LET IT',140,150,155);if(t>=7.82)type.put('CATCH.',140+35*(1-ease((t-7.82)/.16)),340,225,{color:pink,scale:.85+.15*ease((t-7.82)/.16)});let a=t<7.82?.12*Math.sin(t*14):.2+(t-7.82)*1.2,pulse=catchPulse(world,t),widthScale=1+.7*pulse,alpha=1+.28*pulse;gear(world,{cx:18,cy:-7,r:19,angle:a,tilt:.25,widthScale,alpha});gear(world,{cx:-11.77,cy:-7,r:12.67,teeth:16,angle:-a*24/16+.2,tilt:.25,widthScale,alpha});break}
 case 3:{reign(images,batch,type,t,'ven',11.5,1.375);break}
 case 4:{reign(images,batch,type,t,'tw',12.875,1.375);break}
 case 5:{reign(images,batch,type,t,'suede',14.25,1.375);break}
