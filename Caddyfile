@@ -27,7 +27,7 @@
 			path /raidguild-launch-film/media/film.mp4
 		}
 		handle @launch_film {
-			rewrite * /render-outputs/remotion/raidguild-launch-film/v14/film-2d035cd575903723.mp4
+			rewrite * /render-outputs/remotion/raidguild-launch-film/v15/film-c3df72bd378c1529.mp4
 			reverse_proxy https://remotion-service-production.up.railway.app {
 				header_up Host remotion-service-production.up.railway.app
 				header_up -Authorization

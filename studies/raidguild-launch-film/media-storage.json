@@ -2,11 +2,11 @@
   "bucket": "paperclip-bucket-ehrsbxvb",
   "endpoint": "https://t3.storageapi.dev",
   "region": "iad",
-  "key": "remotion/raidguild-launch-film/v14/film-2d035cd575903723.mp4",
+  "key": "remotion/raidguild-launch-film/v15/film-c3df72bd378c1529.mp4",
   "contentType": "video/mp4",
-  "bytes": 44863375,
-  "sha256": "2d035cd575903723414f59d9a9fa01ba36636edfe36fdfbf0976abb8f184b97a",
-  "sourceVersion": "v14",
-  "publicProxyUrl": "https://remotion-service-production.up.railway.app/render-outputs/remotion/raidguild-launch-film/v14/film-2d035cd575903723.mp4",
-  "verifiedAt": "2026-09-28T15:32:22.838Z"
+  "bytes": 44862065,
+  "sha256": "c3df72bd378c15295c0ee4e6937bb0de3797db4fb1d1185d0a06078a4d5bddff",
+  "sourceVersion": "v15",
+  "publicProxyUrl": "https://remotion-service-production.up.railway.app/render-outputs/remotion/raidguild-launch-film/v15/film-c3df72bd378c1529.mp4",
+  "verifiedAt": "2026-09-29T04:07:48.276Z"
 }
