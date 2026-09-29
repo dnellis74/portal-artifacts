@@ -1,6 +1,25 @@
+{
+	# Redact launch tokens and session headers from runtime/error logs as well.
+	log {
+		format filter {
+			wrap json
+			fields {
+				request>uri delete
+				request>headers>Cookie delete
+				request>headers>Authorization delete
+			}
+		}
+	}
+}
+
 :{$PORT:8080} {
 	root * /srv
 	encode zstd gzip
+
+	# Public game assets must be readable by scripts-only sandbox embeds.
+	@cosmic path /cosmic-carnival/*
+	header @cosmic Access-Control-Allow-Origin "*"
+	header @cosmic Cache-Control "no-cache"
 
 	# Revalidate walker assets so repeat visitors receive new deployments.
 	@field path /field /field/*
@@ -68,6 +87,21 @@
 		}
 		handle /jev-api/* {
 			respond "Jev API route or authorization not allowed" 404
+		}
+
+		# Optional game backend; same-origin requests preserve first-party sessions.
+		# The service remains usable without this backend (guest/local mode).
+		handle /leaderboard-api/cosmic-carnival/* {
+			reverse_proxy {$LEADERBOARD_UPSTREAM:localhost:9999} {
+				header_up Host {upstream_hostport}
+				transport http {
+					dial_timeout 3s
+					response_header_timeout 8s
+				}
+			}
+		}
+		handle /health {
+			respond "ok" 200
 		}
 
 		@veydrift_mission_explorer path_regexp mission_explorer ^/veydrift-mission-explorer/mission/[0-9]+/?$

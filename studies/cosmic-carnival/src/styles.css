@@ -333,3 +333,13 @@ dialog dd { margin: 0; color: var(--lavender); font-family: ui-monospace, monosp
   .title-screen--revealed #title-face { opacity: 1; transform: none; }
   .title-echo { display: none; }
 }
+
+.ranked-status { max-width: 34rem; margin: .7rem 1rem 0; font: .75rem/1.4 system-ui, sans-serif; color: var(--lavender); text-align: center; }
+.title-actions { flex-wrap: wrap; justify-content: center; }
+#leaderboard { max-height: 85dvh; overflow-y: auto; }
+#leaderboard-list { padding-left: 1.5rem; font: .95rem/1.5 system-ui, sans-serif; }
+#leaderboard-list li { padding: .45rem 0; border-bottom: 1px solid rgb(164 138 202 / .24); }
+#leaderboard-list li span { display: inline-block; width: 70%; overflow-wrap: anywhere; vertical-align: top; }
+#leaderboard-list li strong { display: inline-block; width: 30%; text-align: right; color: var(--butter); font-family: ui-monospace, monospace; }
+#leaderboard a { color: var(--cyan); font: .8rem/1.5 system-ui, sans-serif; }
+button:disabled { opacity: .6; cursor: wait; }
