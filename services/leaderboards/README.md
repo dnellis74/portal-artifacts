@@ -11,10 +11,10 @@ HTTPS Railway domain using `LEADERBOARD_UPSTREAM`. This keeps cookies first-part
 without cross-project database access or changes to the artifacts CSP. Portal's
 callback URL points to this **proxied artifacts URL**, not the API service domain.
 
-Deploy the API in RaidGuild Playground beside Tapper-Postgres. Use the dedicated
-`artifact_leaderboards` schema and a restricted login role with table CRUD and
-sequence usage, but no access to other games' tables. Never grant it Portal DB access.
-The schema migration is an administrative deploy step; the runtime role cannot DDL.
+The API service runs in RaidGuild Playground beside Tapper-Postgres. It uses the
+dedicated `artifact_leaderboards` schema and a restricted login role with table
+CRUD and sequence usage, but no access to other games' tables or the Portal DB.
+The schema migration is an administrative step; the runtime role cannot DDL.
 
 ## Configuration
 
@@ -31,21 +31,35 @@ and applies only with `--apply` or `COSMIC_LEADERBOARD_APPLY=true`, from a Porta
 changes auth fields on the existing module, leaves visibility and entry URL intact,
 and checks the expected slug, kind and entry URL before updating.
 
-## Deploy
+## Restore the existing leaderboard after a static deploy
+
+The API and its scores already exist. This change restores the static game and
+same-origin proxy to the repository's current `main` branch. After this PR is
+merged, verify that Railway deploys the **static artifacts service** from the
+repository root (`/`) with the root `Dockerfile`, and that its existing
+`LEADERBOARD_UPSTREAM` still points to the API service's HTTPS domain. Check the
+game, `/leaderboard-api/cosmic-carnival/leaderboard`, and a Portal ranked launch.
+The API service deploys from `/services/leaderboards` with
+`services/leaderboards/Dockerfile`; it should not be changed for this restoration.
+Preserve the existing database, runtime credentials, Portal secret and module
+registry configuration. This PR alone does not deploy or reconfigure Railway.
+
+## Initial setup for a new environment
 
 1. With administrator database credentials, run `npm run migrate`; grant the runtime
    role schema usage, table SELECT/INSERT/UPDATE/DELETE, sequence USAGE/SELECT.
-2. Deploy `services/leaderboards/` as the Railway service root using its Dockerfile
+2. Deploy `/services/leaderboards` as the Railway service root using its Dockerfile
    and set its Railway service health check to `/health` (60-second timeout). Set the configuration above. `/health` checks schema reachability.
 3. Set `LEADERBOARD_UPSTREAM=https://<api-service-domain>` on the static artifacts
-   service and deploy the repository root with its existing Dockerfile.
+   service and deploy the repository root (`/`) with its root Dockerfile.
 4. Set the dedicated launch secret in Portal and redeploy it to load the value.
 5. Run the Portal configuration script in dry-run, then with `--apply`.
 
 For CLI deployments use `railway up services/leaderboards --path-as-root` with
-explicit project and service selectors. For GitHub autodeploy, set the service root
-to `/services/leaderboards`. Configure deployment settings directly in Railway; new `railway.json` configuration is deprecated by Railway. After review, switch the service branch from `codex/cosmic-leaderboards` to `main`.
-Do not deploy the static root Dockerfile to the API service.
+explicit project and service selectors. For GitHub autodeploy, set the API
+service root to `/services/leaderboards` and the static service root to `/`.
+Configure service deployment settings in Railway. These service roots must use
+their respective Dockerfiles.
 
 ## API
 
