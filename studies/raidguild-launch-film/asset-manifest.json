@@ -1,5 +1,5 @@
 {
-  "sourceVersion": "v14",
+  "sourceVersion": "v15",
   "durationSeconds": 85,
   "omittedAssets": [
     {
@@ -27,22 +27,22 @@
       "sha256": "d146068950aec35aace6a3cc18c4fd7aefe6489d76f738abaac2366bba7ba606"
     },
     {
-      "path": "assets/fonts/Grinder-Regular.woff2",
+      "path": "assets/fonts/Grinder-Refined-Regular.woff2",
       "kind": "licensed-font",
-      "bytes": 13764,
-      "sha256": "0f0303d5e24be04d0c1b406e7a61a08ce8670feae99b3845e54937354f7de394"
+      "bytes": 24392,
+      "sha256": "a59412b351e1a0a537bf6b84d30977b153e23d0641cac339ffdce82cf7da8fb6"
     },
     {
-      "path": "assets/fonts/Grinder-Italic.woff2",
+      "path": "assets/fonts/Grinder-Refined-Italic.woff2",
       "kind": "licensed-font",
-      "bytes": 15068,
-      "sha256": "5312d3be169f99703f010234016e0af1ce1f375c54de060a0616883494cf4880"
+      "bytes": 16328,
+      "sha256": "690ea70ae793f355c25fd5e5864196a91efa0fa78ba48d04b4c3905920c07980"
     },
     {
-      "path": "assets/fonts/Grinder-Retalic.woff2",
+      "path": "assets/fonts/Grinder-Refined-Retalic.woff2",
       "kind": "licensed-font",
-      "bytes": 14896,
-      "sha256": "4021fb3a9bd963ef792b4cdd54ed822bd8591c1236f24aa3de8eca90f276f1d4"
+      "bytes": 24748,
+      "sha256": "76a00c6ea0fe768ca85b6feed4e52b454a01245991d80e4cb22b59435fe39e81"
     }
   ]
 }
