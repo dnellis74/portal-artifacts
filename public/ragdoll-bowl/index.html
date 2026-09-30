@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ragdoll Bowling</title>
+    <style>
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: #1c1915;
+  color: #f6f0e6;
+  font-family: "Avenir Next", "Segoe UI", sans-serif;
+}
+
+#view {
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+}
+
+#hud {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 22px;
+  pointer-events: none;
+}
+
+h1 {
+  margin: 0;
+  font-family: Palatino, "Palatino Linotype", "Iowan Old Style", Georgia, serif;
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
+}
+
+#status {
+  margin: 4px 0 0;
+  font-size: 15px;
+  letter-spacing: 0.02em;
+  opacity: 0.92;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.4);
+}
+
+#reset {
+  pointer-events: auto;
+  border: 0;
+  border-radius: 999px;
+  padding: 10px 18px;
+  background: #f4efe4;
+  color: #2a2118;
+  font: 600 14px/1 "Avenir Next", "Segoe UI", sans-serif;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+}
+
+#reset:hover:not(:disabled) {
+  background: #fffaf1;
+}
+
+#reset:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+#hint,
+#fps {
+  position: fixed;
+  bottom: 16px;
+  margin: 0;
+  font-size: 13px;
+  letter-spacing: 0.03em;
+  opacity: 0.8;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+}
+
+#hint {
+  left: 22px;
+}
+
+#fps {
+  right: 22px;
+  font-variant-numeric: tabular-nums;
+}
+    </style>
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+    <script src="https://cdn.babylonjs.com/havok/HavokPhysics_umd.js"></script>
+  </head>
+  <body>
+    <canvas id="view"></canvas>
+    <div id="hud">
+      <div>
+        <h1>Ragdoll Bowling</h1>
+        <p id="status">Loading physics…</p>
+      </div>
+      <button id="reset" type="button" disabled>Reset</button>
+    </div>
+    <p id="hint">Drag to orbit · scroll to zoom · R to reset</p>
+    <p id="fps">— fps</p>
+    <script>
+/* global BABYLON, HavokPhysics */
+
+const AX = BABYLON.PhysicsConstraintAxis;
+const MOTOR = BABYLON.PhysicsConstraintMotorType;
+
+const RAMP_ANGLE = 18 * Math.PI / 180;
+const RAMP_LENGTH = 16;
+const RAMP_WIDTH = 4.2;
+const RAMP_THICKNESS = 0.35;
+const LANE_TOP = 0;
+
+const JOINTS = {
+  spine: [0, 1.08, 0],
+  neck: [0, 1.5, 0],
+  lHip: [-0.11, 0.9, 0],
+  rHip: [0.11, 0.9, 0],
+  lKnee: [-0.11, 0.48, 0],
+  rKnee: [0.11, 0.48, 0],
+  lAnkle: [-0.11, 0.08, 0],
+  rAnkle: [0.11, 0.08, 0],
+  lShoulder: [-0.24, 1.38, 0],
+  rShoulder: [0.24, 1.38, 0],
+  lElbow: [-0.24, 1.06, 0],
+  rElbow: [0.24, 1.06, 0],
+  lWrist: [-0.24, 0.76, 0],
+  rWrist: [0.24, 0.76, 0],
+};
+
+const HOLD = {
+  spine: 280,
+  neck: 70,
+  hip: 200,
+  knee: 110,
+  ankle: 70,
+  shoulder: 90,
+  elbow: 45,
+  wrist: 18,
+};
+
+let scene;
+let physicsPlugin;
+let bodyDoll;
+let pins;
+let bowler;
+let materials;
+let runId = 0;
+let collisionsArmed = false;
+let userAimed = false;
+let camera;
+let statusEl;
+let fpsEl;
+let resetBtn;
+
+function v3(x, y, z) {
+  return new BABYLON.Vector3(x, y, z);
+}
+
+function hex(color) {
+  return BABYLON.Color3.FromHexString(color);
+}
+
+function makeMaterial(name, color, specular) {
+  const material = new BABYLON.StandardMaterial(name, scene);
+  material.diffuseColor = hex(color);
+  material.specularColor = hex(specular);
+  return material;
+}
+
+function rotX(point, angle) {
+  return BABYLON.Vector3.TransformCoordinates(point, BABYLON.Matrix.RotationX(angle));
+}
+
+function lockLinear() {
+  return [
+    { axis: AX.LINEAR_X, minLimit: 0, maxLimit: 0 },
+    { axis: AX.LINEAR_Y, minLimit: 0, maxLimit: 0 },
+    { axis: AX.LINEAR_Z, minLimit: 0, maxLimit: 0 },
+  ];
+}
+
+function swingLimits(xMin, xMax, yMin, yMax, zMin, zMax) {
+  return lockLinear().concat([
+    { axis: AX.ANGULAR_X, minLimit: xMin, maxLimit: xMax },
+    { axis: AX.ANGULAR_Y, minLimit: yMin, maxLimit: yMax },
+    { axis: AX.ANGULAR_Z, minLimit: zMin, maxLimit: zMax },
+  ]);
+}
+
+function holdPose(constraint, force) {
+  for (const axis of [AX.ANGULAR_X, AX.ANGULAR_Y, AX.ANGULAR_Z]) {
+    constraint.setAxisMotorType(axis, MOTOR.POSITION);
+    constraint.setAxisMotorTarget(axis, 0);
+    constraint.setAxisMotorMaxForce(axis, force);
+  }
+}
+
+function releasePose(constraint) {
+  for (const axis of [AX.ANGULAR_X, AX.ANGULAR_Y, AX.ANGULAR_Z]) {
+    constraint.setAxisMotorMaxForce(axis, 0);
+    constraint.setAxisMotorType(axis, MOTOR.NONE);
+  }
+}
+
+function createStatic(mesh, shape, friction) {
+  const aggregate = new BABYLON.PhysicsAggregate(
+    mesh,
+    shape,
+    { mass: 0, friction, restitution: 0.02 },
+    scene
+  );
+  aggregate.shape.filterMembershipMask = 1;
+  aggregate.shape.filterCollideMask = 0xfffffffe;
+  mesh.receiveShadows = true;
+  return aggregate;
+}
+
+function createSceneContent() {
+  scene.clearColor = new BABYLON.Color4(0.62, 0.74, 0.84, 1);
+
+  camera = new BABYLON.ArcRotateCamera(
+    "camera",
+    -0.55,
+    1.15,
+    11,
+    v3(0, 3.4, -12),
+    scene
+  );
+  camera.fov = 0.85;
+  camera.lowerRadiusLimit = 7;
+  camera.upperRadiusLimit = 48;
+  camera.lowerBetaLimit = 0.25;
+  camera.upperBetaLimit = Math.PI / 2.05;
+  camera.wheelPrecision = 40;
+  camera.attachControl(document.getElementById("view"), true);
+  camera.useNaturalPinchZoom = true;
+
+  const hemi = new BABYLON.HemisphericLight("hemi", v3(0.2, 1, 0.1), scene);
+  hemi.intensity = 0.55;
+  hemi.diffuse = hex("#fff4e5");
+  hemi.groundColor = hex("#8a6a45");
+
+  const sun = new BABYLON.DirectionalLight("sun", v3(-0.45, -1, 0.25), scene);
+  sun.position = v3(12, 22, -8);
+  sun.intensity = 0.95;
+  sun.diffuse = hex("#fff7ee");
+
+  const shadows = new BABYLON.ShadowGenerator(1024, sun);
+  shadows.useBlurExponentialShadowMap = true;
+  shadows.blurKernel = 18;
+  shadows.darkness = 0.38;
+  shadows.transparencyShadow = false;
+
+  materials = {
+    apron: makeMaterial("apron", "#6e7872", "#222"),
+    wood: makeMaterial("wood", "#c79a55", "#4a3420"),
+    ramp: makeMaterial("ramp", "#a8743b", "#3a2814"),
+    rail: makeMaterial("rail", "#3c4650", "#111"),
+    curb: makeMaterial("curb", "#2f3834", "#111"),
+    backstop: makeMaterial("backstop", "#8d5a34", "#332014"),
+    line: makeMaterial("line", "#f3efe4", "#222"),
+    eye: makeMaterial("eye", "#1c1a17", "#111"),
+    bowlerSkin: makeMaterial("bowlerSkin", "#ffd84a", "#553"),
+    bowlerShirt: makeMaterial("bowlerShirt", "#2563eb", "#224"),
+    bowlerShorts: makeMaterial("bowlerShorts", "#172554", "#112"),
+    bowlerShoe: makeMaterial("bowlerShoe", "#1a1a1a", "#111"),
+    pinSkin: makeMaterial("pinSkin", "#f4efe6", "#554"),
+    pinShirt: makeMaterial("pinShirt", "#d7263d", "#422"),
+    pinShorts: makeMaterial("pinShorts", "#243044", "#112"),
+    pinShoe: makeMaterial("pinShoe", "#2a2420", "#111"),
+  };
+
+  const apron = BABYLON.MeshBuilder.CreateBox(
+    "apron",
+    { width: 80, height: 1, depth: 80 },
+    scene
+  );
+  apron.position.y = -0.5 - 0.16;
+  apron.material = materials.apron;
+  createStatic(apron, BABYLON.PhysicsShapeType.BOX, 0.9);
+
+  const lane = BABYLON.MeshBuilder.CreateBox(
+    "lane",
+    { width: 7.2, height: 0.28, depth: 22 },
+    scene
+  );
+  lane.position.set(0, LANE_TOP - 0.14, 8);
+  lane.material = materials.wood;
+  createStatic(lane, BABYLON.PhysicsShapeType.BOX, 0.22);
+
+  const lipLocal = v3(0, RAMP_THICKNESS / 2, RAMP_LENGTH / 2);
+  const lipRotated = rotX(lipLocal, RAMP_ANGLE);
+  const ramp = BABYLON.MeshBuilder.CreateBox(
+    "ramp",
+    { width: RAMP_WIDTH, height: RAMP_THICKNESS, depth: RAMP_LENGTH },
+    scene
+  );
+  ramp.rotation.x = RAMP_ANGLE;
+  ramp.position = v3(0, LANE_TOP - lipRotated.y, -1.6 - lipRotated.z);
+  ramp.material = materials.ramp;
+  ramp.computeWorldMatrix(true);
+  createStatic(ramp, BABYLON.PhysicsShapeType.BOX, 0.05);
+
+  const rampMatrix = ramp.getWorldMatrix();
+  const railHeight = 0.55;
+  const railWidth = 0.18;
+
+  for (const side of [-1, 1]) {
+    const rail = BABYLON.MeshBuilder.CreateBox(
+      "rail" + side,
+      { width: railWidth, height: railHeight, depth: RAMP_LENGTH },
+      scene
+    );
+    rail.rotation.x = RAMP_ANGLE;
+    const local = v3(side * (RAMP_WIDTH / 2 + railWidth / 2), RAMP_THICKNESS / 2 + railHeight / 2, 0);
+    rail.position = BABYLON.Vector3.TransformCoordinates(local, rampMatrix);
+    rail.material = materials.rail;
+    createStatic(rail, BABYLON.PhysicsShapeType.BOX, 0.4);
+    shadows.addShadowCaster(rail);
+  }
+
+  for (const side of [-1, 1]) {
+    const curb = BABYLON.MeshBuilder.CreateBox(
+      "curb" + side,
+      { width: 0.16, height: 0.22, depth: 22 },
+      scene
+    );
+    curb.position.set(side * 3.68, 0.11, 8);
+    curb.material = materials.curb;
+    createStatic(curb, BABYLON.PhysicsShapeType.BOX, 0.5);
+  }
+
+  const backstop = BABYLON.MeshBuilder.CreateBox(
+    "backstop",
+    { width: 7.2, height: 1.6, depth: 0.28 },
+    scene
+  );
+  backstop.position.set(0, 0.8, 17.9);
+  backstop.material = materials.backstop;
+  createStatic(backstop, BABYLON.PhysicsShapeType.BOX, 0.45);
+
+  const foul = BABYLON.MeshBuilder.CreateBox(
+    "foul",
+    { width: 7.2, height: 0.012, depth: 0.08 },
+    scene
+  );
+  foul.position.set(0, 0.02, 2.7);
+  foul.material = materials.line;
+  foul.isPickable = false;
+
+  const spawnLocal = v3(0, RAMP_THICKNESS / 2 + 0.03, -RAMP_LENGTH / 2 + 3.2);
+  const bowlerOrigin = BABYLON.Vector3.TransformCoordinates(spawnLocal, rampMatrix);
+  const downhill = BABYLON.Vector3.TransformNormal(v3(0, 0, 1), rampMatrix).normalize();
+
+  bowler = createRagdoll({
+    name: "bowler",
+    origin: bowlerOrigin,
+    yaw: 0,
+    tilt: RAMP_ANGLE,
+    group: 0,
+    isPin: false,
+    massScale: 2.4,
+    colors: {
+      skin: materials.bowlerSkin,
+      shirt: materials.bowlerShirt,
+      shorts: materials.bowlerShorts,
+      shoe: materials.bowlerShoe,
+    },
+  });
+
+  pins = [];
+  const spacing = 0.98;
+  const rowGap = 0.92;
+  const startZ = 4.3;
+  let group = 1;
+  for (let row = 0; row < 4; row++) {
+    const count = row + 1;
+    for (let i = 0; i < count; i++) {
+      const x = (i - (count - 1) / 2) * spacing;
+      const z = startZ + row * rowGap;
+      pins.push(createRagdoll({
+        name: "pin" + group,
+        origin: v3(x, 0.02, z),
+        yaw: Math.PI,
+        tilt: 0,
+        group,
+        isPin: true,
+        colors: {
+          skin: materials.pinSkin,
+          shirt: materials.pinShirt,
+          shorts: materials.pinShorts,
+          shoe: materials.pinShoe,
+        },
+      }));
+      group++;
+    }
+  }
+
+  for (const doll of [bowler].concat(pins)) {
+    for (const part of doll.parts) {
+      shadows.addShadowCaster(part.mesh, true);
+      for (const extra of part.mesh.getChildMeshes()) shadows.addShadowCaster(extra, true);
+    }
+  }
+
+  scene.onBeforeRenderObservable.add(updateStatus);
+  return { downhill };
+}
+
+function createRagdoll(options) {
+  const doll = {
+    name: options.name,
+    isPin: options.isPin,
+    limp: false,
+    parts: [],
+    constraints: [],
+    watching: false,
+  };
+  const colors = options.colors;
+  const membership = 1 << (options.group + 1);
+  const yawQ = BABYLON.Quaternion.RotationAxis(BABYLON.Axis.Y, options.yaw);
+  const tiltQ = BABYLON.Quaternion.RotationAxis(BABYLON.Axis.X, options.tilt);
+  const rotation = tiltQ.multiply(yawQ);
+  const rotationMatrix = new BABYLON.Matrix();
+  rotation.toRotationMatrix(rotationMatrix);
+
+  const friction = options.isPin ? 0.75 : 0.16;
+  const restitution = 0.04;
+
+  function place(local) {
+    return BABYLON.Vector3.TransformCoordinates(v3(local[0], local[1], local[2]), rotationMatrix)
+      .add(options.origin);
+  }
+
+  function addPart(name, mesh, localCenter, shape, mass, material) {
+    mesh.rotationQuaternion = rotation.clone();
+    mesh.position = place(localCenter);
+    mesh.material = material;
+    mesh.isPickable = false;
+    const aggregate = new BABYLON.PhysicsAggregate(
+      mesh,
+      shape,
+      { mass: mass * (options.massScale || 1), friction, restitution },
+      scene
+    );
+    aggregate.shape.filterMembershipMask = membership;
+    aggregate.shape.filterCollideMask = (0xffffffff ^ membership) >>> 0;
+    const part = {
+      name,
+      mesh,
+      body: aggregate.body,
+      localCenter: v3(localCenter[0], localCenter[1], localCenter[2]),
+      homePos: mesh.position.clone(),
+      homeQuat: rotation.clone(),
+    };
+    if (options.isPin) {
+      part.body.setMotionType(BABYLON.PhysicsMotionType.ANIMATED);
+      part.body.setLinearDamping(1.2);
+      part.body.setAngularDamping(4);
+    } else {
+      part.body.setLinearDamping(0.08);
+      part.body.setAngularDamping(0.35);
+    }
+    part.body.disablePreStep = true;
+    bodyDoll.set(part.body, doll);
+    doll.parts.push(part);
+    return part;
+  }
+
+  function capsule(name, from, to, radius, mass, material) {
+    const a = v3(from[0], from[1], from[2]);
+    const b = v3(to[0], to[1], to[2]);
+    const center = a.add(b).scale(0.5);
+    const height = BABYLON.Vector3.Distance(a, b) + radius;
+    const mesh = BABYLON.MeshBuilder.CreateCapsule(options.name + "-" + name, {
+      height,
+      radius,
+      tessellation: 10,
+      capSubdivisions: 4,
+    }, scene);
+    return addPart(name, mesh, [center.x, center.y, center.z], BABYLON.PhysicsShapeType.CAPSULE, mass, material);
+  }
+
+  function box(name, center, size, mass, material) {
+    const mesh = BABYLON.MeshBuilder.CreateBox(options.name + "-" + name, {
+      width: size[0],
+      height: size[1],
+      depth: size[2],
+    }, scene);
+    return addPart(name, mesh, center, BABYLON.PhysicsShapeType.BOX, mass, material);
+  }
+
+  function sphere(name, center, diameter, mass, material) {
+    const mesh = BABYLON.MeshBuilder.CreateSphere(options.name + "-" + name, {
+      diameter,
+      segments: 14,
+    }, scene);
+    return addPart(name, mesh, center, BABYLON.PhysicsShapeType.SPHERE, mass, material);
+  }
+
+  const pelvis = box("pelvis", [0, 0.98, 0], [0.34, 0.26, 0.2], 5.5, colors.shorts);
+  const chest = box("chest", [0, 1.28, 0], [0.46, 0.4, 0.22], 7.5, colors.shirt);
+  const head = sphere("head", [0, 1.66, 0], 0.32, 2.4, colors.skin);
+
+  const lThigh = capsule("lThigh", JOINTS.lHip, JOINTS.lKnee, 0.075, 2.3, colors.skin);
+  const rThigh = capsule("rThigh", JOINTS.rHip, JOINTS.rKnee, 0.075, 2.3, colors.skin);
+  const lShin = capsule("lShin", JOINTS.lKnee, JOINTS.lAnkle, 0.058, 1.5, colors.skin);
+  const rShin = capsule("rShin", JOINTS.rKnee, JOINTS.rAnkle, 0.058, 1.5, colors.skin);
+  const lFoot = box("lFoot", [-0.11, 0.045, 0.04], [0.1, 0.07, 0.24], 0.55, colors.shoe);
+  const rFoot = box("rFoot", [0.11, 0.045, 0.04], [0.1, 0.07, 0.24], 0.55, colors.shoe);
+  const lArm = capsule("lArm", JOINTS.lShoulder, JOINTS.lElbow, 0.055, 1.05, colors.skin);
+  const rArm = capsule("rArm", JOINTS.rShoulder, JOINTS.rElbow, 0.055, 1.05, colors.skin);
+  const lFore = capsule("lFore", JOINTS.lElbow, JOINTS.lWrist, 0.045, 0.75, colors.skin);
+  const rFore = capsule("rFore", JOINTS.rElbow, JOINTS.rWrist, 0.045, 0.75, colors.skin);
+  const lHand = sphere("lHand", [-0.24, 0.7, 0.02], 0.1, 0.35, colors.skin);
+  const rHand = sphere("rHand", [0.24, 0.7, 0.02], 0.1, 0.35, colors.skin);
+
+  const eyeMat = materials.eye;
+  for (const side of [-1, 1]) {
+    const eye = BABYLON.MeshBuilder.CreateSphere(options.name + "-eye" + side, {
+      diameter: 0.045,
+      segments: 8,
+    }, scene);
+    eye.parent = head.mesh;
+    eye.position.set(side * 0.055, 0.025, 0.145);
+    eye.material = eyeMat;
+    eye.isPickable = false;
+  }
+
+  function link(parent, child, anchor, limits, motor) {
+    const pivotA = v3(anchor[0], anchor[1], anchor[2]).subtract(parent.localCenter);
+    const pivotB = v3(anchor[0], anchor[1], anchor[2]).subtract(child.localCenter);
+    const constraint = new BABYLON.Physics6DoFConstraint({
+      pivotA,
+      pivotB,
+      axisA: BABYLON.Axis.X,
+      axisB: BABYLON.Axis.X,
+      perpAxisA: BABYLON.Axis.Y,
+      perpAxisB: BABYLON.Axis.Y,
+    }, limits, scene);
+    parent.body.addConstraint(child.body, constraint);
+    if (motor > 0) holdPose(constraint, motor);
+    doll.constraints.push({ constraint, motor });
+  }
+
+  const spine = swingLimits(-0.35, 0.55, -0.4, 0.4, -0.35, 0.35);
+  const neck = swingLimits(-0.7, 0.9, -0.8, 0.8, -0.5, 0.5);
+  const hip = swingLimits(-1.3, 1.5, -0.55, 0.55, -0.7, 0.7);
+  const knee = swingLimits(-0.12, 2.35, -0.08, 0.08, -0.08, 0.08);
+  const ankle = swingLimits(-0.55, 0.7, -0.15, 0.15, -0.25, 0.25);
+  const shoulder = swingLimits(-1.5, 1.7, -1.1, 1.1, -1.5, 1.5);
+  const elbow = swingLimits(-2.4, 0.15, -0.15, 0.15, -0.2, 0.2);
+  const wrist = swingLimits(-0.8, 0.8, -1, 1, -0.6, 0.6);
+
+  link(pelvis, chest, JOINTS.spine, spine, HOLD.spine);
+  link(chest, head, JOINTS.neck, neck, HOLD.neck);
+  link(pelvis, lThigh, JOINTS.lHip, hip, HOLD.hip);
+  link(pelvis, rThigh, JOINTS.rHip, hip, HOLD.hip);
+  link(lThigh, lShin, JOINTS.lKnee, knee, HOLD.knee);
+  link(rThigh, rShin, JOINTS.rKnee, knee, HOLD.knee);
+  link(lShin, lFoot, JOINTS.lAnkle, ankle, HOLD.ankle);
+  link(rShin, rFoot, JOINTS.rAnkle, ankle, HOLD.ankle);
+  link(chest, lArm, JOINTS.lShoulder, shoulder, HOLD.shoulder);
+  link(chest, rArm, JOINTS.rShoulder, shoulder, HOLD.shoulder);
+  link(lArm, lFore, JOINTS.lElbow, elbow, HOLD.elbow);
+  link(rArm, rFore, JOINTS.rElbow, elbow, HOLD.elbow);
+  link(lFore, lHand, JOINTS.lWrist, wrist, HOLD.wrist);
+  link(rFore, rHand, JOINTS.rWrist, wrist, HOLD.wrist);
+
+  return doll;
+}
+
+function watch(doll) {
+  if (doll.watching) return;
+  doll.watching = true;
+  for (const part of doll.parts) {
+    part.body.setCollisionCallbackEnabled(true);
+    part.body.getCollisionObservable().add((event) => {
+      if (!collisionsArmed) return;
+      const started = event.type === BABYLON.PhysicsEventType.COLLISION_STARTED
+        || event.type === "COLLISION_STARTED";
+      if (!started) return;
+      const other = event.collider === part.body ? event.collidedAgainst : event.collider;
+      const otherDoll = bodyDoll.get(other);
+      if (!otherDoll || !otherDoll.isPin || otherDoll.limp || otherDoll === doll) return;
+      if (!doll.isPin || doll.limp) {
+        if (!doll.isPin) release(doll);
+        const hitPart = otherDoll.parts.find((candidate) => candidate.body === other);
+        release(otherDoll, {
+          part: hitPart,
+          impulse: event.impulse,
+          from: part.mesh.position,
+        });
+      }
+    });
+  }
+}
+
+function release(doll, hit) {
+  if (doll.limp) return;
+  doll.limp = true;
+  for (const entry of doll.constraints) releasePose(entry.constraint);
+  for (const part of doll.parts) {
+    if (doll.isPin) {
+      part.body.setMotionType(BABYLON.PhysicsMotionType.DYNAMIC);
+      part.body.disablePreStep = true;
+    }
+    part.body.setLinearDamping(0.06);
+    part.body.setAngularDamping(0.28);
+  }
+  if (doll.isPin && hit?.part) {
+    const dir = hit.part.mesh.position.subtract(hit.from || BABYLON.Vector3.Zero());
+    if (dir.lengthSquared() > 1e-4) {
+      const strength = Math.min(Math.max(hit.impulse || 20, 12), 90);
+      hit.part.body.applyImpulse(dir.normalize().scale(strength), hit.part.mesh.position);
+    }
+  }
+  watch(doll);
+}
+
+function restoreMotors(doll) {
+  doll.limp = false;
+  for (const entry of doll.constraints) {
+    if (entry.motor > 0) holdPose(entry.constraint, entry.motor);
+  }
+  for (const part of doll.parts) {
+    if (doll.isPin) part.body.setMotionType(BABYLON.PhysicsMotionType.ANIMATED);
+    part.body.setLinearDamping(doll.isPin ? 1.2 : 0.08);
+    part.body.setAngularDamping(doll.isPin ? 4 : 0.35);
+    part.body.setLinearVelocity(BABYLON.Vector3.Zero());
+    part.body.setAngularVelocity(BABYLON.Vector3.Zero());
+  }
+}
+
+function teleport(doll) {
+  for (const part of doll.parts) {
+    part.body.disablePreStep = false;
+    part.body.setLinearVelocity(BABYLON.Vector3.Zero());
+    part.body.setAngularVelocity(BABYLON.Vector3.Zero());
+    part.mesh.position.copyFrom(part.homePos);
+    if (!part.mesh.rotationQuaternion) {
+      part.mesh.rotationQuaternion = part.homeQuat.clone();
+    } else {
+      part.mesh.rotationQuaternion.copyFrom(part.homeQuat);
+    }
+  }
+  scene.onAfterPhysicsObservable.addOnce(() => {
+    for (const part of doll.parts) {
+      part.body.disablePreStep = true;
+      part.body.setLinearVelocity(BABYLON.Vector3.Zero());
+      part.body.setAngularVelocity(BABYLON.Vector3.Zero());
+    }
+  });
+}
+
+function soften(doll, factor) {
+  for (const entry of doll.constraints) {
+    if (entry.motor > 0) holdPose(entry.constraint, entry.motor * factor);
+  }
+}
+
+function launchBowler(id, downhill) {
+  if (id !== runId) return;
+  bowler.launched = true;
+  soften(bowler, 0.2);
+  const velocity = downhill.scale(4.2);
+  for (const part of bowler.parts) {
+    part.body.setLinearDamping(0.02);
+    part.body.setAngularDamping(0.5);
+    part.body.setLinearVelocity(velocity);
+  }
+}
+
+function reset(downhill) {
+  const id = ++runId;
+  collisionsArmed = false;
+  bowler.launched = false;
+  if (!userAimed && camera) {
+    camera.setTarget(v3(0, 3.4, -12));
+    camera.alpha = -0.55;
+    camera.beta = 1.15;
+    camera.radius = 11;
+  }
+  restoreMotors(bowler);
+  teleport(bowler);
+  for (const pin of pins) {
+    restoreMotors(pin);
+    teleport(pin);
+  }
+  statusEl.textContent = "The bowler is on the ramp";
+  window.setTimeout(() => {
+    collisionsArmed = id === runId;
+    launchBowler(id, downhill);
+  }, 900);
+}
+
+function updateStatus() {
+  const fps = scene.getEngine().getFps();
+  fpsEl.textContent = Number.isFinite(fps) ? Math.round(fps) + " fps" : "— fps";
+  const down = pins.reduce((count, pin) => count + (pin.limp ? 1 : 0), 0);
+  if (!bowler.launched) statusEl.textContent = "The bowler is on the ramp";
+  else if (down === 0) statusEl.textContent = "Sliding down the ramp";
+  else if (down === 10) statusEl.textContent = "Strike — 10 / 10 pins down";
+  else statusEl.textContent = down + " / 10 pins down";
+
+  if (userAimed || !camera) return;
+  const goal = bowler.launched
+    ? { target: v3(0, 1.2, 1.5), alpha: -0.42, beta: 1.2, radius: 18 }
+    : { target: v3(0, 3.4, -12), alpha: -0.55, beta: 1.15, radius: 11 };
+  const dt = Math.min(scene.getEngine().getDeltaTime(), 50);
+  const rate = 1 - Math.exp(-dt / (bowler.launched ? 450 : 200));
+  BABYLON.Vector3.LerpToRef(camera.target, goal.target, rate, camera.target);
+  camera.radius += (goal.radius - camera.radius) * rate;
+  camera.beta += (goal.beta - camera.beta) * rate;
+  let alphaDelta = goal.alpha - camera.alpha;
+  if (alphaDelta > Math.PI) alphaDelta -= Math.PI * 2;
+  if (alphaDelta < -Math.PI) alphaDelta += Math.PI * 2;
+  camera.alpha += alphaDelta * rate;
+}
+
+async function main() {
+  statusEl = document.getElementById("status");
+  fpsEl = document.getElementById("fps");
+  resetBtn = document.getElementById("reset");
+  const canvas = document.getElementById("view");
+  const engine = new BABYLON.Engine(canvas, true, {
+    preserveDrawingBuffer: true,
+    stencil: true,
+    adaptToDeviceRatio: true,
+  });
+  scene = new BABYLON.Scene(engine);
+  bodyDoll = new Map();
+
+  try {
+    const havok = await HavokPhysics();
+    physicsPlugin = new BABYLON.HavokPlugin(true, havok);
+  } catch (error) {
+    statusEl.textContent = "Could not load Havok physics.";
+    console.error(error);
+    return;
+  }
+
+  scene.enablePhysics(v3(0, -9.81, 0), physicsPlugin);
+
+  const { downhill } = createSceneContent();
+  watch(bowler);
+
+  const canvasEl = document.getElementById("view");
+  canvasEl.addEventListener("pointerdown", () => { userAimed = true; });
+  canvasEl.addEventListener("wheel", () => { userAimed = true; }, { passive: true });
+
+  resetBtn.disabled = false;
+  resetBtn.addEventListener("click", () => reset(downhill));
+  window.addEventListener("keydown", (event) => {
+    if (event.key === "r" || event.key === "R") reset(downhill);
+  });
+  window.addEventListener("resize", () => engine.resize());
+
+  if (new URLSearchParams(location.search).has("phys")) {
+    const viewer = new BABYLON.Debug.PhysicsViewer(scene);
+    for (const mesh of scene.meshes) {
+      if (mesh.physicsBody) viewer.showBody(mesh.physicsBody);
+    }
+  }
+
+  reset(downhill);
+  engine.runRenderLoop(() => scene.render());
+}
+
+main();
+    </script>
+  </body>
+</html>
