@@ -30,7 +30,8 @@ cookies, or call private Portal APIs.
 The service applies a restrictive Content Security Policy. Inline JavaScript
 and styles are permitted for self-contained workshop exports. The only external
 script origin currently permitted is `cdnjs.cloudflare.com`; prefer checked-in
-dependencies for durable published work.
+dependencies for durable published work. Same-origin WebAssembly compilation is
+allowed (`wasm-unsafe-eval`) so checked-in engines such as Havok can start.
 
 ## Local preview
 

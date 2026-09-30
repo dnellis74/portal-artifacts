@@ -32,7 +32,7 @@
 	header @walker Cache-Control "no-cache"
 
 	header {
-		Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' blob:; media-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors https://portal.raidguild.org https://*.up.railway.app http://localhost:*"
+		Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' blob:; media-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors https://portal.raidguild.org https://*.up.railway.app http://localhost:*"
 		Referrer-Policy "no-referrer"
 		X-Content-Type-Options "nosniff"
 		Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
